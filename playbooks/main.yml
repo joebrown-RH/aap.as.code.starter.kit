@@ -36,6 +36,14 @@
         mode: '0644'
         validate_certs: false
 
+    - name: Cat a file from project
+      register: command_output
+      ansible.builtin.command: cat "{{ playbook_dir }}/files/config_as_code/remotevault.yml"
+
+    - name: Display file content
+      ansible.builtin.debug:
+        var: command_output.stdout
+
     - name: Include configurations
       ansible.builtin.include_vars:
         dir: files/config_as_code

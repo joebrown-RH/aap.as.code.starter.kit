@@ -34,6 +34,7 @@
         url: '{{ my_remote_vault }}'
         dest: files/config_as_code/remotevault.yml
         mode: '0644'
+        validate_certs: false
 
     - name: Include configurations
       ansible.builtin.include_vars:

@@ -38,6 +38,12 @@
         aap_oauthtoken: "{{ ansible_facts['aap_token']['token'] }}"
         # aap_oauthtoken_url: "{{ authtoken_res.json.url }}"
 
+    - name: Create our directory
+      ansible.builtin.file:
+        path: /tmp/filetree_output
+        state: directory
+        mode: '0755'
+
     - name: Export all objects
       vars:
         valid_tags: all

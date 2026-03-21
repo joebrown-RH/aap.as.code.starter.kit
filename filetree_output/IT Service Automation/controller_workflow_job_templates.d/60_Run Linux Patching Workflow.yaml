@@ -3,53 +3,41 @@ controller_workflows:
   - name: Run Linux Patching Workflow
     organization: IT Service Automation
     simplified_workflow_nodes:
-      - identifier: File Checker
-        workflow_job_template: Run Linux Patching Workflow
-        unified_job_template: Day 2 - Linux File Checker
-        limit: ""
-        organization: IT Service Automation
-        all_parents_must_converge: "False"
-        success_nodes:
-          - 42b5b46b-df6a-4dbe-9ad4-e4f3454068ff
-      - identifier: LB Pool Check
-        workflow_job_template: Run Linux Patching Workflow
-        unified_job_template: Day 2 - lb pool check
-        limit: ""
-        organization: IT Service Automation
-        all_parents_must_converge: "False"
-        success_nodes:
-          - 42b5b46b-df6a-4dbe-9ad4-e4f3454068ff
-      - identifier: Webservice Check
-        workflow_job_template: Run Linux Patching Workflow
-        unified_job_template: Day 2 - Webservice check
-        limit: ""
-        organization: IT Service Automation
-        all_parents_must_converge: "False"
-        success_nodes:
-          - 42b5b46b-df6a-4dbe-9ad4-e4f3454068ff
-      - identifier: 42b5b46b-df6a-4dbe-9ad4-e4f3454068ff
+      - identifier: Do you approve
         workflow_job_template: Run Linux Patching Workflow
         approval_node:
-          description: Are my checks good?
-          name: Approval to continue
+          description: ""
+          name: approval
           timeout: 0
         limit: ""
         organization: IT Service Automation
         all_parents_must_converge: "False"
         success_nodes:
           - Patching
-      - identifier: Webservice check
+      - identifier: Pre File Check
         workflow_job_template: Run Linux Patching Workflow
-        unified_job_template: Day 2 - Webservice check
+        unified_job_template: Day 2 - Linux File Checker
         limit: ""
         organization: IT Service Automation
         all_parents_must_converge: "False"
-      - identifier: LB Check
+        success_nodes:
+          - Do you approve
+      - identifier: Pre Pool check
         workflow_job_template: Run Linux Patching Workflow
         unified_job_template: Day 2 - lb pool check
         limit: ""
         organization: IT Service Automation
         all_parents_must_converge: "False"
+        success_nodes:
+          - Do you approve
+      - identifier: Pre Web check
+        workflow_job_template: Run Linux Patching Workflow
+        unified_job_template: Day 2 - Webservice check
+        limit: ""
+        organization: IT Service Automation
+        all_parents_must_converge: "False"
+        success_nodes:
+          - Do you approve
       - identifier: Patching
         workflow_job_template: Run Linux Patching Workflow
         unified_job_template: Day 2 - Linux Patching
@@ -57,8 +45,20 @@ controller_workflows:
         organization: IT Service Automation
         all_parents_must_converge: "False"
         always_nodes:
-          - LB Check
-          - Webservice check
+          - Post web check
+          - Post pool check
+      - identifier: Post web check
+        workflow_job_template: Run Linux Patching Workflow
+        unified_job_template: Day 2 - Webservice check
+        limit: ""
+        organization: IT Service Automation
+        all_parents_must_converge: "False"
+      - identifier: Post pool check
+        workflow_job_template: Run Linux Patching Workflow
+        unified_job_template: Day 2 - lb pool check
+        limit: ""
+        organization: IT Service Automation
+        all_parents_must_converge: "False"
     ask_variables_on_launch: "False"
     allow_simultaneous: "False"
     scm_branch: ""

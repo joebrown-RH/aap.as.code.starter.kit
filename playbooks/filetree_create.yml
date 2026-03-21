@@ -1,0 +1,115 @@
+---
+- name: Export controller configs
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  vars:
+    software_repository: https://{{ personal_access_token }}@github.com/ericcames/aap.as.code.starter.kit.git
+    personal_access_token: git_hub_token
+    local_repo: /var/tmp/github/aap.as.code.starter.kit
+    git_name: ericcames
+    git_email: ericcames@msn.com
+
+  tasks:
+
+    # fail with good error for Automation controller user
+    - name: Determine that both AAP and Machine credentials are set
+      ansible.builtin.assert:
+        that:
+          - "lookup('ansible.builtin.env', 'CONTROLLER_USERNAME') !=''"
+          - "lookup('ansible.builtin.env', 'CONTROLLER_HOST') !=''"
+          - "lookup('ansible.builtin.env', 'CONTROLLER_PASSWORD') !=''"
+        fail_msg:
+          - "Red Hat Ansible Automation Platform credential is not set"
+          - "Please assign correct credentials to the Job Template"
+
+    - name: Create a new token
+      ansible.platform.token:
+        aap_hostname: "{{ lookup('ansible.builtin.env', 'CONTROLLER_HOST') }}"
+        aap_username: "{{ lookup('ansible.builtin.env', 'CONTROLLER_USERNAME') }}"
+        aap_password: "{{ lookup('ansible.builtin.env', 'CONTROLLER_PASSWORD') }}"
+        aap_validate_certs: false
+        description: Controller export
+        scope: write
+        state: present
+
+    - name: Printout my token
+      ansible.builtin.debug:
+        msg:
+          - "{{ ansible_facts['aap_token']['token'] }}"
+          - "{{ aap_username }}"
+
+    - name: "Set the oauth token to be used since now"
+      ansible.builtin.set_fact:
+        aap_oauthtoken: "{{ ansible_facts['aap_token']['token'] }}"
+
+    - name: Clone the software repository
+      register: clone_result
+      run_once: true
+      when: software_repository is defined
+      ansible.builtin.git:
+        repo: "{{ software_repository }}"
+        dest: "{{ local_repo }}"
+        accept_hostkey: true
+        force: true
+        version: Dev
+
+    - name: Create a directory if it does not exist
+      ansible.builtin.file:
+        path: "{{ local_repo }}/filetree_output"
+        state: directory
+        mode: '0755'
+
+    - name: Export all objects
+      vars:
+        output_path: "{{ local_repo }}/filetree_output"
+        input_tag:
+          - all
+        valid_tags:
+          - all
+          - controller_projects
+      ansible.builtin.include_role:
+        name: infra.aap_configuration_extended.filetree_create
+
+    - name: Add any new playbooks to the software_repository
+      changed_when: false
+      run_once: true
+      args:
+        chdir: "{{ local_repo }}"
+      ansible.builtin.shell: git add *
+
+    - name: Get the status of the repository
+      register: status_results
+      changed_when: false
+      ignore_errors: true
+      run_once: true
+      args:
+        chdir: "{{ local_repo }}"
+      ansible.builtin.shell: git status
+
+    - name: Commit the changes
+      when: status_results.stdout is search('Changes')
+      run_once: true
+      environment:
+        GIT_COMMITTER_NAME: "{{ git_name | default(omit) }}"
+        GIT_COMMITTER_EMAIL: "{{ git_email | default(omit) }}"
+        GIT_AUTHOR_NAME: "{{ git_name | default(omit) }}"
+        GIT_AUTHOR_EMAIL: "{{ git_email | default(omit) }}"
+      args:
+        chdir: "{{ local_repo }}"
+      ansible.builtin.shell: git commit -am 'Changed'
+
+    - name: Push the changes
+      run_once: true
+      when: software_repository is defined
+      args:
+        chdir: "{{ local_repo }}"
+      ansible.builtin.shell: git push
+
+    - name: Remove my token
+      ansible.platform.token:
+        aap_hostname: "{{ lookup('ansible.builtin.env', 'CONTROLLER_HOST') }}"
+        existing_token: "{{ ansible_facts['aap_token'] }}"
+        aap_token: "{{ ansible_facts['aap_token']['token'] }}"
+        aap_validate_certs: false
+        state: absent

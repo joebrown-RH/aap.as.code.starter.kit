@@ -34,6 +34,8 @@
           - "{{ aap_username }}"
 
     - name: Export all objects
+      vars:
+        valid_tags: all
       ansible.builtin.include_role:
         name: infra.aap_configuration_extended.filetree_create
 

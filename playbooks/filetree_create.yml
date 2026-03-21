@@ -40,12 +40,13 @@
 
     - name: Create our directory
       ansible.builtin.file:
-        path: /tmp/filetree_output
+        path: "{{ playbook_dir }}/filetree_output"
         state: directory
         mode: '0755'
 
     - name: Export all objects
       vars:
+        output_path: "{{ playbook_dir }}/filetree_output"
         input_tag:
           - all
         valid_tags:
@@ -56,7 +57,7 @@
 
     - name: Find /tmp/filetree_output
       ansible.builtin.find:
-        paths: /tmp/filetree_output
+        paths: "{{ playbook_dir }}/filetree_output"
         recurse: yes
         file_type: directory
 

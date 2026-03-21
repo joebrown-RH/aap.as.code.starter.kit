@@ -50,6 +50,12 @@
       ansible.builtin.include_role:
         name: infra.aap_configuration_extended.filetree_create
 
+    - name: Find /tmp/filetree_output
+      ansible.builtin.find:
+        paths: /tmp/filetree_output
+        recurse: yes
+        file_type: directory
+
     - name: Remove my token
       ansible.platform.token:
         aap_hostname: "{{ lookup('ansible.builtin.env', 'CONTROLLER_HOST') }}"

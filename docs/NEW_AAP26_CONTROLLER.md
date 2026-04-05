@@ -26,3 +26,7 @@ New Ansible Automation Platform 2.6 available at https://demo.redhat.com
 
 ![alt text](https://github.com/ericcames/aap.as.code.starter.kit/blob/main/docs/images/aap26aapinstall26.png "AAP 26 Install")
 ![alt text](https://github.com/ericcames/aap.as.code.starter.kit/blob/main/docs/images/aap26aapinstallcomplete.png "AAP 26 Install Complete")
+
+- Look for Ansible Automation Platform
+
+![alt text](https://github.com/ericcames/aap.as.code.starter.kit/blob/main/docs/images/aap26aapplat.png "AAP 26 Install Complete")
